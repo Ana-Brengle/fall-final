@@ -14,15 +14,24 @@ function App() {
   const [searchResults, setSearchResults] = useState(null);
   const [keywords, setKeyWords] = useState('');
 
-  useEffect(() => {
-    if (localStorage) {
-      const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
 
-      if (recipesLocalStorage) {
-        saveRecipes(recipesLocalStorage);
-      } else {
-        saveRecipes(recipes);
-      }
+  // useEffect(() => {
+  //   if (localStorage) {
+  //     const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
+
+  //     if (recipesLocalStorage) {
+  //       saveRecipes(recipesLocalStorage);
+  //     } else {
+  //       saveRecipes(recipes);
+  //     }
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
+    if (recipesLocalStorage) {
+      setAllRecipes(recipesLocalStorage);
+      setSearchResults(recipesLocalStorage);
     }
   }, []);
   
@@ -70,28 +79,63 @@ function App() {
   }
 ]
 
+// const saveRecipes = (recipes) => {
+//   setAllRecipes(recipes);
+//   setSearchResults(recipes);
+
+//   if (localStorage) {
+//     localStorage.setItem('recipes', JSON.stringify(recipes));
+//     console.log('saved to local storage');
+//   }
+// }
+
+// const addRecipe = (newRecipe) => {
+//   const updatedRecipes = [...allRecipes, newRecipe];
+//   saveRecipes(updatedRecipes);
+// }
+
+// const removeRecipe = (recipeToDelete) => {
+//   const updatedRecipeArray = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
+//   saveRecipes(updatedRecipeArray);
+// };
+
+// const updateRecipe = (updatedRecipe) => {
+//   const updatedRecipeArray = allRecipes.map(recipe => recipe.id === updatedRecipe.id ? { ...recipe, ...updatedRecipe } : recipe);
+//   saveRecipes(updatedRecipeArray);
+// };
+
+// const searchRecipes = () => {
+//   if (keywords) {
+//     const searchResults = allRecipes.filter(recipe => {
+//       return recipe.name.toLowerCase().includes(keywords.toLowerCase()) || 
+//              recipe.ingredients.toLowerCase().includes(keywords.toLowerCase());
+//     });
+//     setSearchResults(searchResults);
+//   } else {
+//     setSearchResults(allRecipes);
+//   }
+// }
+
 const saveRecipes = (recipes) => {
   setAllRecipes(recipes);
   setSearchResults(recipes);
-
-  if (localStorage) {
-    localStorage.setItem('recipes', JSON.stringify(recipes));
-    console.log('saved to local storage');
-  }
-}
+  localStorage.setItem('recipes', JSON.stringify(recipes));
+};
 
 const addRecipe = (newRecipe) => {
   const updatedRecipes = [...allRecipes, newRecipe];
   saveRecipes(updatedRecipes);
-}
+};
 
 const removeRecipe = (recipeToDelete) => {
-  const updatedRecipeArray = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
-  saveRecipes(updatedRecipeArray);
+  const updatedRecipes = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
+  saveRecipes(updatedRecipes);
 };
 
 const updateRecipe = (updatedRecipe) => {
-  const updatedRecipeArray = allRecipes.map(recipe => recipe.id === updatedRecipe.id ? { ...recipe, ...updatedRecipe } : recipe);
+  const updatedRecipeArray = allRecipes.map(recipe =>
+    recipe.id === updatedRecipe.id ? { ...recipe, ...updatedRecipe } : recipe
+  );
   saveRecipes(updatedRecipeArray);
 };
 
@@ -99,43 +143,93 @@ const searchRecipes = () => {
   if (keywords) {
     const searchResults = allRecipes.filter(recipe => {
       return recipe.name.toLowerCase().includes(keywords.toLowerCase()) || 
-             recipe.ingredients.toLowerCase().includes(keywords.toLowerCase());
+             recipe.ingredients.join(', ').toLowerCase().includes(keywords.toLowerCase());
     });
     setSearchResults(searchResults);
   } else {
     setSearchResults(allRecipes);
   }
-}
+};
+
 
   return (
-    <div className="container">
-    <div className="row" id="allRecipes">
-      <h3>Recipes</h3>
-      {searchResults && searchResults.map((recipe) => (
-        <div className="col-lg-4" key={recipe.id}>
-          <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
-        </div>
-      ))}
-      <AddRecipe addRecipe={addRecipe} />
+  // //   <div className="container">
+  // //   <div className="row" id="allRecipes">
+  // //     <h3>Recipes</h3>
+  // //     {searchResults && searchResults.map((recipe) => (
+  // //       <div className="col-lg-4" key={recipe.id}>
+  // //         <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
+  // //       </div>
+  // //     ))}
+  // //     <AddRecipe addRecipe={addRecipe} />
+  // //   </div>
+  // //   <div className="row mt-4" id="searchRecipe">
+  // //     <h3>Search Recipes</h3>
+  // //     <div className="col-md-6">
+  // //       <label htmlFor="txtKeywords">Search by Recipe Name</label>
+  // //       <input
+  // //         type="text"
+  // //         className="form-control"
+  // //         placeholder="Search by Recipe Name"
+  // //         onChange={(e) => setKeyWords(e.currentTarget.value)}
+  // //         value={keywords}
+  // //       />
+  // //     </div>
+  // //     <div className="col-md-3 mt-3">
+  // //       <button type="button" className="btn btn-lg btn-primary" onClick={searchRecipes}>Search Recipes</button>
+  // //     </div>
+  // //   </div>
+  // // </div>
+  // <div className='container'>
+  //   <div className='row' id='searchRecipe'>
+  //     <h3>Search</h3>
+
+  //   </div>
+  //   <div className='row' id='allRecipes'>
+  //     <h3>My Recipes</h3>
+  //     {searchResults && searchResults.map((recipe) =>(
+  //       <div className='col-lg-4' key={recipe.id}>
+  //         <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
+  //       </div>
+  //     ))}
+  //     <button className='btn btn-success ' onClick={toggleAddRecipe}>AddRecipe</button>
+  //     {showAddRecipe && (
+  //       <div className='card mt-3'>
+  //         <div className='card-body'>
+  //           <AddRecipe addRecipe={addRecipe} />
+  //         </div>
+  //       </div>
+  //     )}
+
+  //   </div>
+  // </div>
+  <div className="container">
+  <h3>Recipes</h3>
+  <div className="row">
+    {searchResults && searchResults.map((recipe) => (
+      <div className="col-lg-4" key={recipe.id}>
+        <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
+      </div>
+    ))}
+  </div>
+  <AddRecipe addRecipe={addRecipe} />
+  <div className="row mt-4" id="searchRecipe">
+    <div className="col-md-6">
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Search by Recipe Name"
+        onChange={(e) => setKeywords(e.currentTarget.value)}
+        value={keywords}
+      />
     </div>
-    <div className="row mt-4" id="searchRecipe">
-      <h3>Search Recipes</h3>
-      <div className="col-md-6">
-        <label htmlFor="txtKeywords">Search by Recipe Name</label>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search by Recipe Name"
-          onChange={(e) => setKeyWords(e.currentTarget.value)}
-          value={keywords}
-        />
-      </div>
-      <div className="col-md-3 mt-3">
-        <button type="button" className="btn btn-lg btn-primary" onClick={searchRecipes}>Search Recipes</button>
-      </div>
+    <div className="col-md-3 mt-3">
+      <button type="button" className="btn btn-lg btn-primary" onClick={searchRecipes}>
+        Search Recipes
+      </button>
     </div>
   </div>
-   
+</div>
   )
 }
 
