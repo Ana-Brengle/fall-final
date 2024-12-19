@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {nanoid} from 'nanoid'
 import Recipe from './component/Recipe';
 import AddRecipe from './component/AddRecipe';
-import _ from 'lodash'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { faSadTear, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -13,30 +14,23 @@ function App() {
   const [allRecipes, setAllRecipes] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
   const [keywords, setKeyWords] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
-
-  // useEffect(() => {
-  //   if (localStorage) {
-  //     const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
-
-  //     if (recipesLocalStorage) {
-  //       saveRecipes(recipesLocalStorage);
-  //     } else {
-  //       saveRecipes(recipes);
-  //     }
-  //   }
-  // }, []);
 
   useEffect(() => {
-    const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
-    if (recipesLocalStorage) {
-      setAllRecipes(recipesLocalStorage);
-      setSearchResults(recipesLocalStorage);
+    if(localStorage){
+      const recipesLocalStorage = JSON.parse(localStorage.getItem('recipes'));
+      if(recipesLocalStorage){
+        saveRecipes(recipesLocalStorage);
+      }else{
+        saveRecipes(recipe)
+      }
     }
-  }, []);
-  
+  }, [])
 
-  const recipes= [{
+
+
+  const recipe= [{
     id: nanoid(),
     image: "images/image1.jpeg",
     name: "Fish Salad",
@@ -58,7 +52,7 @@ function App() {
     image: "images/image3.webp",
     name: "Salmon",
     ingredients: ["Salmon fillets", "Lemon", "Garlic", "Olive oil", "Salt", "Pepper", "Dill"],
-    instructions: "Preheat oven to nanoid()00°F (200°C). Season salmon fillets with salt, pepper, garlic, and olive oil. Bake for nanoid5-20 minutes until cooked through. Serve with fresh lemon slices and dill.",
+    instructions: "Preheat oven to 300°F. Season salmon fillets with salt, pepper, garlic, and olive oil. Bake for 5-20 minutes until cooked through. Serve with fresh lemon slices and dill.",
     comments: []
   },
   {
@@ -78,158 +72,97 @@ function App() {
     comments: []
   }
 ]
-
-// const saveRecipes = (recipes) => {
-//   setAllRecipes(recipes);
-//   setSearchResults(recipes);
-
-//   if (localStorage) {
-//     localStorage.setItem('recipes', JSON.stringify(recipes));
-//     console.log('saved to local storage');
-//   }
-// }
-
-// const addRecipe = (newRecipe) => {
-//   const updatedRecipes = [...allRecipes, newRecipe];
-//   saveRecipes(updatedRecipes);
-// }
-
-// const removeRecipe = (recipeToDelete) => {
-//   const updatedRecipeArray = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
-//   saveRecipes(updatedRecipeArray);
-// };
-
-// const updateRecipe = (updatedRecipe) => {
-//   const updatedRecipeArray = allRecipes.map(recipe => recipe.id === updatedRecipe.id ? { ...recipe, ...updatedRecipe } : recipe);
-//   saveRecipes(updatedRecipeArray);
-// };
-
-// const searchRecipes = () => {
-//   if (keywords) {
-//     const searchResults = allRecipes.filter(recipe => {
-//       return recipe.name.toLowerCase().includes(keywords.toLowerCase()) || 
-//              recipe.ingredients.toLowerCase().includes(keywords.toLowerCase());
-//     });
-//     setSearchResults(searchResults);
-//   } else {
-//     setSearchResults(allRecipes);
-//   }
-// }
-
-const saveRecipes = (recipes) => {
-  setAllRecipes(recipes);
-  setSearchResults(recipes);
-  localStorage.setItem('recipes', JSON.stringify(recipes));
-};
-
-const addRecipe = (newRecipe) => {
-  const updatedRecipes = [...allRecipes, newRecipe];
-  saveRecipes(updatedRecipes);
-};
-
-const removeRecipe = (recipeToDelete) => {
-  const updatedRecipes = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
-  saveRecipes(updatedRecipes);
-};
-
-const updateRecipe = (updatedRecipe) => {
-  const updatedRecipeArray = allRecipes.map(recipe =>
-    recipe.id === updatedRecipe.id ? { ...recipe, ...updatedRecipe } : recipe
-  );
-  saveRecipes(updatedRecipeArray);
-};
-
-const searchRecipes = () => {
-  if (keywords) {
-    const searchResults = allRecipes.filter(recipe => {
-      return recipe.name.toLowerCase().includes(keywords.toLowerCase()) || 
-             recipe.ingredients.join(', ').toLowerCase().includes(keywords.toLowerCase());
-    });
-    setSearchResults(searchResults);
-  } else {
-    setSearchResults(allRecipes);
+  const addRecipe = (newRecipe) => {
+    const updatedRecipe = [...allRecipes, newRecipe]
+    saveRecipes(updatedRecipe);
+    setShowModal(false);
   }
-};
 
+  const removeRecipe = (recipeToDelete) => {
+    const updatedRecipeArray = allRecipes.filter(recipe => recipe.id !== recipeToDelete.id);
+    saveRecipes(updatedRecipeArray);
+  };
+
+  const updateRecipe = (updatedRecipe) => {
+    const updatedRecipeArray = allRecipes.map(recipe => recipe.id == updatedRecipe.id ?
+      {...recipe, ...updatedRecipe} : recipe);
+      saveRecipes(updatedRecipeArray)
+  }
+
+  const searchRecipes = () => {
+    let keywordsArray = [];
+
+    if(keywords){
+      keywordsArray= keywords.toLowerCase().split(' ');
+    }
+
+    if(keywordsArray.length > 0 ){
+      const searchResults = allRecipes.filter(recipe => {
+        for(const word of keywordsArray){
+          if(recipe.name.toLowerCase().includes(word)){
+              return true;
+             }
+        }
+        return false
+      });
+      setSearchResults(searchResults);
+    }else{
+      setSearchResults(allRecipes)
+    }
+  }
+
+  const saveRecipes = (recipes) => {
+    setAllRecipes(recipes);
+    setSearchResults(recipes);
+
+    if(localStorage){
+      localStorage.setItem('recipes', JSON.stringify(recipes));
+      console.log('saved to local storage');
+    }
+  }
 
   return (
-  // //   <div className="container">
-  // //   <div className="row" id="allRecipes">
-  // //     <h3>Recipes</h3>
-  // //     {searchResults && searchResults.map((recipe) => (
-  // //       <div className="col-lg-4" key={recipe.id}>
-  // //         <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
-  // //       </div>
-  // //     ))}
-  // //     <AddRecipe addRecipe={addRecipe} />
-  // //   </div>
-  // //   <div className="row mt-4" id="searchRecipe">
-  // //     <h3>Search Recipes</h3>
-  // //     <div className="col-md-6">
-  // //       <label htmlFor="txtKeywords">Search by Recipe Name</label>
-  // //       <input
-  // //         type="text"
-  // //         className="form-control"
-  // //         placeholder="Search by Recipe Name"
-  // //         onChange={(e) => setKeyWords(e.currentTarget.value)}
-  // //         value={keywords}
-  // //       />
-  // //     </div>
-  // //     <div className="col-md-3 mt-3">
-  // //       <button type="button" className="btn btn-lg btn-primary" onClick={searchRecipes}>Search Recipes</button>
-  // //     </div>
-  // //   </div>
-  // // </div>
-  // <div className='container'>
-  //   <div className='row' id='searchRecipe'>
-  //     <h3>Search</h3>
-
-  //   </div>
-  //   <div className='row' id='allRecipes'>
-  //     <h3>My Recipes</h3>
-  //     {searchResults && searchResults.map((recipe) =>(
-  //       <div className='col-lg-4' key={recipe.id}>
-  //         <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
-  //       </div>
-  //     ))}
-  //     <button className='btn btn-success ' onClick={toggleAddRecipe}>AddRecipe</button>
-  //     {showAddRecipe && (
-  //       <div className='card mt-3'>
-  //         <div className='card-body'>
-  //           <AddRecipe addRecipe={addRecipe} />
-  //         </div>
-  //       </div>
-  //     )}
-
-  //   </div>
-  // </div>
-  <div className="container">
-  <h3>Recipes</h3>
-  <div className="row">
-    {searchResults && searchResults.map((recipe) => (
-      <div className="col-lg-4" key={recipe.id}>
-        <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe} />
+    <div className="container">
+      <div className="row justify-content-between align-items-center mt-4">
+        <div className="col-md-6">
+          <h3>Recipe Search </h3>
+        </div>
+        <div className="col-md-6 d-flex justify-content-end">
+          <div className="input-group">
+            <input type="text" className="form-control" placeholder="Search by Recipe Name" onChange={(e) => setKeyWords(e.currentTarget.value)} value={keywords}/>
+            <button className="btn btn-primary" onClick={searchRecipes}>Search <FontAwesomeIcon icon = {faSearch} /></button>
+          </div>
+          <button type="button" className="btn btn-success ms-3" onClick={() => setShowModal(true)}>Add Recipe</button>
+        </div>
       </div>
-    ))}
-  </div>
-  <AddRecipe addRecipe={addRecipe} />
-  <div className="row mt-4" id="searchRecipe">
-    <div className="col-md-6">
-      <input
-        type="text"
-        className="form-control"
-        placeholder="Search by Recipe Name"
-        onChange={(e) => setKeywords(e.currentTarget.value)}
-        value={keywords}
-      />
+      <div className={`modal ${showModal ? 'show' : ''}`} style={{ display: showModal ? 'block' : 'none' }} tabIndex="-1" aria-labelledby="addRecipeModal" aria-hidden="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <button type="button" className="btn-close" onClick={() => setShowModal(false)} aria-label="Close"></button>
+            </div>
+            <div className="modal-body">
+              <AddRecipe addRecipe={addRecipe} />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="row mt-4">
+        <h3>My Recipes</h3>
+        {searchResults && searchResults.length > 0 ? (
+          searchResults.map((recipe) => (
+            <div className="col-lg-3" key={recipe.id}>
+              <Recipe recipe={recipe} removeRecipe={removeRecipe} updateRecipe={updateRecipe}/>
+            </div>
+          ))
+        ) : (
+          <div className="col-12 text-center">
+            <h5>No recipes found.</h5>
+          </div>
+        )}
+      </div>
     </div>
-    <div className="col-md-3 mt-3">
-      <button type="button" className="btn btn-lg btn-primary" onClick={searchRecipes}>
-        Search Recipes
-      </button>
-    </div>
-  </div>
-</div>
+    
   )
 }
 
