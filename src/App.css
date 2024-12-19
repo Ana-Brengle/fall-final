@@ -2,7 +2,7 @@ img{
   max-width: 325px;
 }
 body{
-  background-image: url('./images/bg2-image.jpg');
+  background-image: url('../images/bg2-image.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
